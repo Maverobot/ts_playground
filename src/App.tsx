@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import * as React from 'react';
+import PlotlyChart from 'react-plotlyjs-ts';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  public handleClick = (evt: any) => alert('click');
+  public handleHover = (evt: any) => console.log('hover');
+
+  public render() {
+    const data = [
+      {
+        marker: {
+          color: 'rgb(16, 32, 77)',
+        },
+        type: 'scatter',
+        x: [1, 2, 3],
+        y: [6, 2, 3],
+      },
+      {
+        name: 'bar chart example',
+        type: 'bar',
+        x: [1, 2, 3],
+        y: [6, 2, 3],
+      },
+    ];
+    const layout = {
+      annotations: [
+        {
+          text: 'simple annotation',
+          x: 0,
+          xref: 'paper',
+          y: 0,
+          yref: 'paper',
+        },
+      ],
+      title: 'simple example',
+      xaxis: {
+        title: 'time',
+      },
+    };
+    return (
+      <PlotlyChart
+        data={data}
+        layout={layout}
+        onClick={this.handleClick}
+        onHover={this.handleHover}
+      />
+    );
+  }
 }
 
 export default App;
