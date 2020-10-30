@@ -1,32 +1,31 @@
 import React, { Component } from 'react';
 import CSS from 'csstype';
 
-interface CounterProps {}
+export interface Props {
+  id: number;
+  value: number;
+  selected: boolean;
+}
 
-interface CounterState {
-  count: number;
+interface State {
+  value: number;
   tags: string[];
 }
 
-interface Product {
-  id: number;
-}
-
-class Counter extends Component<CounterProps, CounterState> {
+class Counter extends Component<Props, State> {
   styles: CSS.Properties = {
     fontSize: '20px',
     color: 'blue',
     fontWeight: 'bold',
   };
 
-  constructor(props: CounterProps) {
+  constructor(props: Props) {
     super(props);
-    this.state = { count: 0, tags: ['tag1', 'tag2', 'tag3'] };
+    this.state = { value: this.props.value, tags: ['tag1', 'tag2', 'tag3'] };
   }
 
-  handleIncrement = (product: Product) => {
-    console.log(product);
-    this.setState({ count: this.state.count + 1, tags: this.state.tags });
+  handleIncrement = () => {
+    this.setState({ value: this.state.value + 1, tags: this.state.tags });
   };
 
   render() {
@@ -34,9 +33,7 @@ class Counter extends Component<CounterProps, CounterState> {
       <React.Fragment>
         <span className={this.getBadgeClasses()}> {this.formatCount()} </span>
         <button
-          onClick={() => {
-            this.handleIncrement(product);
-          }}
+          onClick={this.handleIncrement}
           className="btn btn-secondary btn-sm"
         >
           Increment
@@ -52,13 +49,13 @@ class Counter extends Component<CounterProps, CounterState> {
 
   getBadgeClasses() {
     let classes: string = 'badge m-2 badge-';
-    classes = classes.concat(this.state.count === 0 ? 'warning' : 'primary');
+    classes = classes.concat(this.state.value === 0 ? 'warning' : 'primary');
     return classes;
   }
 
   formatCount() {
-    const { count } = this.state;
-    return count === 0 ? 'Zero' : count;
+    const { value } = this.state;
+    return value === 0 ? 'Zero' : value;
   }
 }
 
