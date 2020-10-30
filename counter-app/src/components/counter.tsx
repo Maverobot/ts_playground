@@ -17,32 +17,29 @@ class Counter extends Component<CounterProps, CounterState> {
 
   constructor(props: CounterProps) {
     super(props);
-    this.state = { count: 0, tags: ['tag1', 'tag2', 'tag3'] };
+    this.state = { count: 0, tags: [] };
+  }
+
+  renderTags() {
+    if (this.state.tags.length === 0) {
+      return <p>There are no tags</p>;
+    }
+    return (
+      <ul>
+        {this.state.tags.map((tag) => (
+          <li key={tag}>{tag}</li>
+        ))}
+      </ul>
+    );
   }
 
   render() {
     return (
       <React.Fragment>
-        <span className={this.getBadgeClasses()}> {this.formatCount()} </span>
-        <button className="btn btn-secondary btn-sm"> Increment </button>
-        <ul>
-          {this.state.tags.map((tag) => (
-            <li key={tag}>{tag}</li>
-          ))}
-        </ul>
+        {this.state.tags.length === 0 && 'Please create a new tag!'}
+        {this.renderTags()}
       </React.Fragment>
     );
-  }
-
-  getBadgeClasses() {
-    let classes: string = 'badge m-2 badge-';
-    classes = classes.concat(this.state.count === 0 ? 'warning' : 'primary');
-    return classes;
-  }
-
-  formatCount() {
-    const { count } = this.state;
-    return count === 0 ? 'Zero' : count;
   }
 }
 
