@@ -18,19 +18,10 @@ class Counter extends Component<CounterProps, CounterState> {
   constructor(props: CounterProps) {
     super(props);
     this.state = { count: 0, tags: ['tag1', 'tag2', 'tag3'] };
-
-    // bind this to this :)
-    /* this.handleIncrement = this.handleIncrement.bind(this); */
   }
 
-  // Arrow functions do not rebind this keyword, instead they inherit it.
   handleIncrement = () => {
-    // Does not have access to "this". It is undefined here.
-    // In function like "obj.method()", "this" refers to "obj".
-    // However in standalone function like "method()",
-    // "this" in that function will refer to the reference of the window object.
-    // But in strict mode, the "this" will be undefined.
-    console.log('increment Clicked ', this.state.count);
+    this.setState({ count: this.state.count + 1, tags: this.state.tags });
   };
 
   render() {
