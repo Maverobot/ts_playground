@@ -8,6 +8,10 @@ interface CounterState {
   tags: string[];
 }
 
+interface Product {
+  id: number;
+}
+
 class Counter extends Component<CounterProps, CounterState> {
   styles: CSS.Properties = {
     fontSize: '20px',
@@ -20,7 +24,8 @@ class Counter extends Component<CounterProps, CounterState> {
     this.state = { count: 0, tags: ['tag1', 'tag2', 'tag3'] };
   }
 
-  handleIncrement = () => {
+  handleIncrement = (product: Product) => {
+    console.log(product);
     this.setState({ count: this.state.count + 1, tags: this.state.tags });
   };
 
@@ -29,7 +34,9 @@ class Counter extends Component<CounterProps, CounterState> {
       <React.Fragment>
         <span className={this.getBadgeClasses()}> {this.formatCount()} </span>
         <button
-          onClick={this.handleIncrement}
+          onClick={() => {
+            this.handleIncrement(product);
+          }}
           className="btn btn-secondary btn-sm"
         >
           Increment
