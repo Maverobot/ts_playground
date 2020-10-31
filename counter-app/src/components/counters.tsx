@@ -24,7 +24,9 @@ export default class Counters extends Component<Props, State> {
     return (
       <React.Fragment>
         {this.state.counters.map((counter_data: CounterProps) => (
-          <Counter id={counter_data.id} value={counter_data.value} selected />
+          <Counter id={counter_data.id} value={counter_data.value} selected>
+            <h4> Counter #{counter_data.id} </h4>
+          </Counter>
         ))}
       </React.Fragment>
     );
