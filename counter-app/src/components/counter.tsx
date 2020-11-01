@@ -18,6 +18,15 @@ interface State {}
 
 // This is a "controlled" component which does not have internal states but get all information via props from parent component.
 class Counter extends Component<Props, State> {
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    console.log('prevProps:', prevProps);
+    console.log('prevState:', prevState);
+
+    if (prevProps.counter.value !== this.props.counter.value) {
+      // Ajax call and get new data from the server
+    }
+  }
+
   render() {
     return (
       <div>
