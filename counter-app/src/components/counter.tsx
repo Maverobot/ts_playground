@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import CSS from 'csstype';
 
 interface Props {
   counter: CounterProps;
@@ -19,16 +18,6 @@ interface State {}
 
 // This is a "controlled" component which does not have internal states but get all information via props from parent component.
 class Counter extends Component<Props, State> {
-  styles: CSS.Properties = {
-    fontSize: '20px',
-    color: 'blue',
-    fontWeight: 'bold',
-  };
-
-  constructor(props: Readonly<Props>) {
-    super(props);
-  }
-
   render() {
     return (
       <div>
