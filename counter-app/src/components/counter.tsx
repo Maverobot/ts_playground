@@ -1,16 +1,22 @@
 import React, { Component } from 'react';
 import CSS from 'csstype';
 
-export interface Props {
+interface Props {
+  counter: CounterProps;
+  onDelete: (id: number) => void;
+}
+
+export interface CounterProps {
   id: number;
   value: number;
-  selected: boolean;
 }
 
 interface State {
   value: number;
-  tags: string[];
 }
+
+// Props are the inputs to the component while states are internal local information in the component.
+// Props are read-only.
 
 class Counter extends Component<Props, State> {
   styles: CSS.Properties = {
@@ -19,20 +25,18 @@ class Counter extends Component<Props, State> {
     fontWeight: 'bold',
   };
 
-  constructor(props: Props) {
+  constructor(props: Readonly<Props>) {
     super(props);
-    this.state = { value: this.props.value, tags: ['tag1', 'tag2', 'tag3'] };
+    this.state = { value: this.props.counter.value };
   }
 
   handleIncrement = () => {
-    this.setState({ value: this.state.value + 1, tags: this.state.tags });
+    this.setState({ value: this.state.value + 1 });
   };
 
   render() {
-    console.log(this.props);
     return (
-      <React.Fragment>
-        {this.props.children}
+      <div>
         <span className={this.getBadgeClasses()}> {this.formatCount()} </span>
         <button
           onClick={this.handleIncrement}
@@ -40,12 +44,13 @@ class Counter extends Component<Props, State> {
         >
           Increment
         </button>
-        <ul>
-          {this.state.tags.map((tag) => (
-            <li key={tag}>{tag}</li>
-          ))}
-        </ul>
-      </React.Fragment>
+        <button
+          onClick={() => this.props.onDelete(this.props.counter.id)}
+          className="btn btn-danger btn-sm m-2"
+        >
+          Delete
+        </button>
+      </div>
     );
   }
 

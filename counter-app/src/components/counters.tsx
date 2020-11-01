@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Counter, { Props as CounterProps } from './counter';
+import Counter, { CounterProps } from './counter';
 
 interface Props {}
 
@@ -13,20 +13,33 @@ export default class Counters extends Component<Props, State> {
 
     this.state = {
       counters: [
-        { id: 1, value: 4, selected: false },
-        { id: 2, value: 0, selected: false },
-        { id: 3, value: 0, selected: false },
-        { id: 4, value: 0, selected: false },
+        { id: 1, value: 4 },
+        { id: 2, value: 3 },
+        { id: 3, value: 2 },
+        { id: 4, value: 1 },
       ],
     };
   }
+
+  handleDelete = (id: number) => {
+    console.log('delete handler for id ' + id);
+    const counters = this.state.counters.filter(
+      (c: CounterProps) => c.id !== id
+    );
+
+    this.setState({ counters });
+  };
+
   render() {
+    // Never forget to set "key" to have an unique value, otherwise react cannot find and update hte correct component.
     return (
       <React.Fragment>
-        {this.state.counters.map((counter_data: CounterProps) => (
-          <Counter id={counter_data.id} value={counter_data.value} selected>
-            <h4> Counter #{counter_data.id} </h4>
-          </Counter>
+        {this.state.counters.map((counter_props: CounterProps) => (
+          <Counter
+            key={counter_props.id}
+            onDelete={this.handleDelete}
+            counter={counter_props}
+          ></Counter>
         ))}
       </React.Fragment>
     );
