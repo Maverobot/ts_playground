@@ -27,6 +27,10 @@ class Counter extends Component<Props, State> {
     }
   }
 
+  componentWillUnmount() {
+    console.log('counter - Unmount');
+  }
+
   render() {
     return (
       <div>
