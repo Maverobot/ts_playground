@@ -3,6 +3,7 @@ import React from 'react';
 import ReactGridLayout from 'react-grid-layout';
 import { Layout as GridLayout } from 'react-grid-layout';
 import Plotter from './plotter';
+import { SizeMe, SizeMeProps } from 'react-sizeme';
 
 interface Props {}
 interface State {
@@ -16,33 +17,19 @@ interface State {
 class Layout extends React.Component<Props, State> {
   // layout is an array of objects, see the demo for more complete usage
   layout: GridLayout[] = [
-    { i: 'a', x: 0, y: 0, w: 1, h: 2, static: true, resizeHandles: ['se'] },
-    {
-      i: 'b',
-      x: 1,
-      y: 0,
-      w: 3,
-      h: 2,
-      minW: 2,
-      maxW: 4,
-      resizeHandles: ['se'],
-    },
     {
       i: 'c',
-      x: 4,
+      x: 0,
       y: 0,
-      w: 6,
-      h: 6,
-      isDraggable: false,
+      w: 8,
+      h: 10,
+      isResizable: true,
       resizeHandles: ['se'],
+      static: true,
     },
   ];
 
   divElement: HTMLDivElement | null = null;
-
-  changeSize = () => {
-    this.setState({ plotterHeight: 600, plotterWidth: 300 });
-  };
 
   constructor(props: Props) {
     super(props);
@@ -53,44 +40,50 @@ class Layout extends React.Component<Props, State> {
     if (this.divElement) {
       const height = this.divElement.clientHeight;
       const width = this.divElement.clientWidth;
-      this.setState({ plotterWidth: width / 2, plotterHeight: height });
+      console.log(width);
+      this.setState({ plotterWidth: width, plotterHeight: height });
     }
   }
 
-  createPlotter() {}
+  createAutofitElement(
+    key: string,
+    elementFun: (props: SizeMeProps) => JSX.Element
+  ) {
+    return (
+      <div
+        key={key}
+        ref={(divElement) => {
+          this.divElement = divElement;
+        }}
+      >
+        <SizeMe>{({ size }) => <div>{elementFun({ size })}</div>}</SizeMe>
+      </div>
+    );
+  }
 
   render() {
     return (
-      <div>
-        <button onClick={this.changeSize}> Change size </button>
+      <React.Fragment>
         <ReactGridLayout
           className="layout"
           layout={this.layout}
-          cols={12}
-          rowHeight={30}
-          width={1200}
+          cols={14}
+          rowHeight={40}
+          width={1400}
           resizeHandles={['se']}
         >
           <div key="a">a</div>
           <div key="b">b</div>
-          <div
-            key="c"
-            style={{
-              border: '5px outset red',
-            }}
-            ref={(divElement) => {
-              {
-                this.divElement = divElement;
-              }
-            }}
-          >
-            <Plotter
-              width={this.state.plotterWidth}
-              height={this.state.plotterHeight}
-            />
-          </div>
+          {this.createAutofitElement('c', ({ size }) => {
+            return (
+              <Plotter
+                width={size.width || this.state.plotterWidth}
+                height={size.height || this.state.plotterHeight}
+              />
+            );
+          })}
         </ReactGridLayout>
-      </div>
+      </React.Fragment>
     );
   }
 }
