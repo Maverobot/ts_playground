@@ -7,9 +7,16 @@ import { SizeMe, SizeMeProps } from 'react-sizeme';
 
 interface Props {}
 interface State {
-  plotterHeight: number;
-  plotterWidth: number;
+  elementProps: { [key: string]: ElementProps };
 }
+
+interface ElementProps {
+  width: number;
+  height: number;
+}
+
+const defaultWidth = 800;
+const defaultHeight = 600;
 
 // TODOs (priority goes from high to low)
 // TODO: auto fix height and width to its content. see https://github.com/STRML/react-grid-layout/issues/190
@@ -18,10 +25,27 @@ class Layout extends React.Component<Props, State> {
   // layout is an array of objects, see the demo for more complete usage
   layout: GridLayout[] = [
     {
+      i: 'a',
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    },
+    {
       i: 'c',
       x: 0,
       y: 0,
-      w: 8,
+      w: 7,
+      h: 10,
+      isResizable: true,
+      resizeHandles: ['se'],
+      static: true,
+    },
+    {
+      i: 'd',
+      x: 7,
+      y: 0,
+      w: 7,
       h: 10,
       isResizable: true,
       resizeHandles: ['se'],
@@ -29,19 +53,28 @@ class Layout extends React.Component<Props, State> {
     },
   ];
 
-  divElement: HTMLDivElement | null = null;
+  elements: { [key: string]: HTMLDivElement | null };
 
   constructor(props: Props) {
     super(props);
-    this.state = { plotterHeight: 300, plotterWidth: 600 };
+    this.state = { elementProps: {} };
+    this.elements = {};
   }
 
   componentDidMount() {
-    if (this.divElement) {
-      const height = this.divElement.clientHeight;
-      const width = this.divElement.clientWidth;
-      console.log(width);
-      this.setState({ plotterWidth: width, plotterHeight: height });
+    let changed = false;
+    const { elementProps } = { ...this.state };
+    for (let key in this.elements) {
+      const ref = this.elements[key];
+      if (ref) {
+        const height = ref.clientHeight;
+        const width = ref.clientWidth;
+        elementProps[key] = { width, height };
+        changed = true;
+      }
+    }
+    if (changed) {
+      this.setState({ elementProps });
     }
   }
 
@@ -53,12 +86,39 @@ class Layout extends React.Component<Props, State> {
       <div
         key={key}
         ref={(divElement) => {
-          this.divElement = divElement;
+          this.elements[key] = divElement;
         }}
       >
         <SizeMe>{({ size }) => <div>{elementFun({ size })}</div>}</SizeMe>
       </div>
     );
+  }
+
+  getWidth(key: string, sizeMeProps: SizeMeProps) {
+    if (sizeMeProps.size.width) {
+      return sizeMeProps.size.width;
+    }
+    if (this.state.elementProps && key in this.state.elementProps) {
+      return this.state.elementProps[key].width;
+    }
+    return defaultWidth;
+  }
+
+  getHeight(key: string, sizeMeProps: SizeMeProps) {
+    if (sizeMeProps.size.height) {
+      return sizeMeProps.size.height;
+    }
+    if (this.state.elementProps && key in this.state.elementProps) {
+      return this.state.elementProps[key].height;
+    }
+    return defaultHeight;
+  }
+
+  getWidthAndHeight(key: string, sizeMeProps: SizeMeProps) {
+    return {
+      width: this.getWidth(key, sizeMeProps),
+      height: this.getHeight(key, sizeMeProps),
+    };
   }
 
   render() {
@@ -72,16 +132,15 @@ class Layout extends React.Component<Props, State> {
           width={1400}
           resizeHandles={['se']}
         >
+          {this.createAutofitElement('c', ({ size }) => {
+            return <Plotter {...this.getWidthAndHeight('c', { size })} />;
+          })}
+
+          {this.createAutofitElement('d', ({ size }) => {
+            return <Plotter {...this.getWidthAndHeight('d', { size })} />;
+          })}
           <div key="a">a</div>
           <div key="b">b</div>
-          {this.createAutofitElement('c', ({ size }) => {
-            return (
-              <Plotter
-                width={size.width || this.state.plotterWidth}
-                height={size.height || this.state.plotterHeight}
-              />
-            );
-          })}
         </ReactGridLayout>
       </React.Fragment>
     );
