@@ -19,7 +19,6 @@ const defaultWidth = 800;
 const defaultHeight = 600;
 
 // TODOs (priority goes from high to low)
-// TODO: auto fix height and width to its content. see https://github.com/STRML/react-grid-layout/issues/190
 // TODO: resizeHandles: https://github.com/STRML/react-grid-layout/issues/1317
 class Layout extends React.Component<Props, State> {
   // layout is an array of objects, see the demo for more complete usage
