@@ -31,7 +31,7 @@ class Layout extends React.Component<Props, State> {
       h: 1,
     },
     {
-      i: 'c',
+      i: 'plotter1',
       x: 0,
       y: 0,
       w: 7,
@@ -41,7 +41,7 @@ class Layout extends React.Component<Props, State> {
       static: true,
     },
     {
-      i: 'd',
+      i: 'plotter2',
       x: 7,
       y: 0,
       w: 7,
@@ -131,12 +131,22 @@ class Layout extends React.Component<Props, State> {
           width={1400}
           resizeHandles={['se']}
         >
-          {this.createAutofitElement('c', ({ size }) => {
-            return <Plotter {...this.getWidthAndHeight('c', { size })} />;
+          {this.createAutofitElement('plotter1', ({ size }) => {
+            return (
+              <Plotter
+                {...this.getWidthAndHeight('plotter1', { size })}
+                topic={{ name: '/sensor1', msgType: 'std_msgs/Float32' }}
+              />
+            );
           })}
 
-          {this.createAutofitElement('d', ({ size }) => {
-            return <Plotter {...this.getWidthAndHeight('d', { size })} />;
+          {this.createAutofitElement('plotter2', ({ size }) => {
+            return (
+              <Plotter
+                {...this.getWidthAndHeight('plotter2', { size })}
+                topic={{ name: '/sensor2', msgType: 'std_msgs/Float32' }}
+              />
+            );
           })}
           <div key="a">a</div>
           <div key="b">b</div>

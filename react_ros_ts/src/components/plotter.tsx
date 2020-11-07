@@ -1,68 +1,97 @@
 import * as React from 'react';
 import PlotlyChart from 'react-plotlyjs-ts';
+import * as ROSLIB from 'roslib';
 
-const getRandomID = () => {
-  // Math.random should be unique because of its seeding algorithm.
-  // Convert it to base 36 (numbers + letters), and grab the first 9 characters
-  // after the decimal.
-  return '_' + Math.random().toString(36).substr(2, 9);
-};
+// TODO: deal with high frequency topic (>100Hz)
+// https://medium.com/@jmmccota/plotly-react-and-dynamic-data-d40c7292dbfb
+
+class Throttled {
+  constructor(private rate: number) {}
+  private last = new Date().getTime();
+  active = () => {
+    const old_last = this.last;
+    const now = new Date().getTime();
+    const minInterval = (1 / this.rate) * 1000;
+    if (now - old_last < minInterval) {
+      this.last = now;
+      console.log('interval: ', now - old_last);
+      return true;
+    }
+    return false;
+  };
+}
 
 interface Props {
   width: number;
   height: number;
+  topic: { name: string; msgType: string };
 }
 
 interface State {
-  plotHeight: number;
+  data: number[];
 }
 
 class Plotter extends React.Component<Props, State> {
-  private handleClick = (evt: any) => console.log('click');
-  private handleHover = (evt: any) => console.log('hover');
-  private handleInput = (evt: any) => {
-    if (evt.key === 'Enter' || evt.keyCode === 13) {
-      console.log('Enter pressed');
-    }
-  };
+  private ros: ROSLIB.Ros;
+  private listener: ROSLIB.Topic;
+  private throttled: Throttled;
 
-  private inputElement: HTMLInputElement | null;
+  bufferSize = 100;
+  throttleRate = 10;
 
   constructor(props: Props) {
     super(props);
-    this.state = { plotHeight: props.height };
-    this.inputElement = null;
+
+    this.ros = new ROSLIB.Ros({
+      url: 'ws://0.0.0.0:9090',
+    });
+    this.ros.on('connection', function () {
+      console.debug('Connected to websocket server.');
+    });
+    this.ros.on('error', function (error) {
+      console.error('Error connecting to websocket server: ', error);
+    });
+    this.ros.on('close', function () {
+      console.debug('Connection to websocket server closed.');
+    });
+
+    this.state = { data: [] };
+
+    this.throttled = new Throttled(this.throttleRate);
+
+    this.listener = new ROSLIB.Topic({
+      ros: this.ros,
+      name: this.props.topic.name,
+      messageType: this.props.topic.msgType,
+      throttle_rate: 10,
+      queue_size: 1,
+      queue_length: 1,
+    });
+
+    this.listener.subscribe((message: any) => {
+      if (this.throttled.active()) {
+        return;
+      }
+      let data = [...this.state.data];
+      data.push(message.data);
+      if (data.length > this.bufferSize) {
+        data.shift();
+      }
+      this.setState({ data });
+    });
   }
 
   createLayout = () => {
     return {
-      annotations: [
-        {
-          text: 'simple annotation',
-          x: 0,
-          xref: 'paper',
-          y: 0,
-          yref: 'paper',
-        },
-      ],
-      title: 'simple example',
-      autosize: false,
+      title: this.props.topic.name,
+      autosize: true,
       width: this.props.width,
-      height: this.state.plotHeight,
+      height: this.props.height,
       xaxis: {
         title: 'time',
       },
     };
   };
-
-  componentDidMount() {
-    if (this.inputElement) {
-      const inputHeight = this.inputElement.getBoundingClientRect().height;
-      this.setState({
-        plotHeight: this.props.height - inputHeight,
-      });
-    }
-  }
 
   render() {
     const data = [
@@ -71,34 +100,13 @@ class Plotter extends React.Component<Props, State> {
           color: 'rgb(16, 32, 77)',
         },
         type: 'scatter',
-        x: [1, 2, 3],
-        y: [6, 2, 3],
-      },
-      {
-        name: 'bar chart example',
-        type: 'bar',
-        x: [1, 2, 3],
-        y: [6, 2, 3],
+        x: Array.from(Array(this.state.data.length), (_, i) => i + 1),
+        y: this.state.data,
       },
     ];
     return (
       <div>
-        <input
-          onKeyUp={this.handleInput}
-          type="text"
-          name="textfield"
-          placeholder="Please input the topic name here"
-          ref={(inputElement) => {
-            this.inputElement = inputElement;
-          }}
-          id={getRandomID()}
-        />
-        <PlotlyChart
-          data={data}
-          layout={this.createLayout()}
-          onClick={this.handleClick}
-          onHover={this.handleHover}
-        />
+        <PlotlyChart data={data} layout={this.createLayout()} />
       </div>
     );
   }
