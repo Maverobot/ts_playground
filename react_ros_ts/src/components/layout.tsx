@@ -62,7 +62,7 @@ class Layout extends React.Component<Props, State> {
 
   componentDidMount() {
     let changed = false;
-    const { elementProps } = { ...this.state };
+    const elementProps = { ...this.state.elementProps };
     for (let key in this.elements) {
       const ref = this.elements[key];
       if (ref) {

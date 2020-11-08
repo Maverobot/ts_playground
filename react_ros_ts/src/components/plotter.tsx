@@ -2,25 +2,6 @@ import * as React from 'react';
 import PlotlyChart from 'react-plotlyjs-ts';
 import * as ROSLIB from 'roslib';
 
-// TODO: deal with high frequency topic (>100Hz)
-// https://medium.com/@jmmccota/plotly-react-and-dynamic-data-d40c7292dbfb
-
-class Throttled {
-  constructor(private rate: number) {}
-  private last = new Date().getTime();
-  active = () => {
-    const old_last = this.last;
-    const now = new Date().getTime();
-    const minInterval = (1 / this.rate) * 1000;
-    if (now - old_last < minInterval) {
-      this.last = now;
-      console.log('interval: ', now - old_last);
-      return true;
-    }
-    return false;
-  };
-}
-
 interface Props {
   width: number;
   height: number;
@@ -34,13 +15,15 @@ interface State {
 class Plotter extends React.Component<Props, State> {
   private ros: ROSLIB.Ros;
   private listener: ROSLIB.Topic;
-  private throttled: Throttled;
+  private lastUpdateDate: Date;
 
   bufferSize = 100;
-  throttleRate = 10;
+  throttleRate = 1000;
 
   constructor(props: Props) {
     super(props);
+
+    this.lastUpdateDate = new Date();
 
     this.ros = new ROSLIB.Ros({
       url: 'ws://0.0.0.0:9090',
@@ -57,21 +40,16 @@ class Plotter extends React.Component<Props, State> {
 
     this.state = { data: [] };
 
-    this.throttled = new Throttled(this.throttleRate);
-
     this.listener = new ROSLIB.Topic({
       ros: this.ros,
       name: this.props.topic.name,
       messageType: this.props.topic.msgType,
       throttle_rate: 10,
-      queue_size: 1,
-      queue_length: 1,
+      queue_size: 100, // This value should be set high if the topic is published at a high frequency, e.g. 100Hz.
+      queue_length: 10,
     });
 
     this.listener.subscribe((message: any) => {
-      if (this.throttled.active()) {
-        return;
-      }
       let data = [...this.state.data];
       data.push(message.data);
       if (data.length > this.bufferSize) {
@@ -79,6 +57,16 @@ class Plotter extends React.Component<Props, State> {
       }
       this.setState({ data });
     });
+  }
+
+  shouldComponentUpdate() {
+    const now = new Date();
+    var seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
+    return seconds >= 1 / this.throttleRate;
+  }
+
+  componentDidUpdate() {
+    this.lastUpdateDate = new Date();
   }
 
   createLayout = () => {
