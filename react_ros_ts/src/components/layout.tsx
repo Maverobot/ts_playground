@@ -42,7 +42,7 @@ class Layout extends React.Component<Props, State> {
       static: true,
     },
     {
-      i: 'viewer',
+      i: 'three_js_viewer',
       x: 7,
       y: 0,
       w: 7,
@@ -141,10 +141,11 @@ class Layout extends React.Component<Props, State> {
             );
           })}
 
-          {this.createAutofitElement('viewer', ({ size }) => {
-            return (
-              <ThreeViewer {...this.getWidthAndHeight('viewer', { size })} />
-            );
+          {this.createAutofitElement('three_js_viewer', ({ size }) => {
+            let viewerSize = this.getWidthAndHeight('three_js_viewer', {
+              size,
+            });
+            return <ThreeViewer {...viewerSize} />;
           })}
 
           <div key="a">a</div>

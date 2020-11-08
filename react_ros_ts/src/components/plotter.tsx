@@ -46,7 +46,7 @@ class Plotter extends React.Component<Props, State> {
       messageType: this.props.topic.msgType,
       throttle_rate: 10,
       queue_size: 100, // This value should be set high if the topic is published at a high frequency, e.g. 100Hz.
-      queue_length: 10,
+      queue_length: 100,
     });
 
     this.listener.subscribe((message: any) => {
