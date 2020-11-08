@@ -4,6 +4,7 @@ import ReactGridLayout from 'react-grid-layout';
 import { Layout as GridLayout } from 'react-grid-layout';
 import Plotter from './plotter';
 import { SizeMe, SizeMeProps } from 'react-sizeme';
+import ThreeViewer from './three_viewer';
 
 interface Props {}
 interface State {
@@ -41,7 +42,7 @@ class Layout extends React.Component<Props, State> {
       static: true,
     },
     {
-      i: 'plotter2',
+      i: 'viewer',
       x: 7,
       y: 0,
       w: 7,
@@ -140,14 +141,12 @@ class Layout extends React.Component<Props, State> {
             );
           })}
 
-          {this.createAutofitElement('plotter2', ({ size }) => {
+          {this.createAutofitElement('viewer', ({ size }) => {
             return (
-              <Plotter
-                {...this.getWidthAndHeight('plotter2', { size })}
-                topic={{ name: '/sensor2', msgType: 'std_msgs/Float32' }}
-              />
+              <ThreeViewer {...this.getWidthAndHeight('viewer', { size })} />
             );
           })}
+
           <div key="a">a</div>
           <div key="b">b</div>
         </ReactGridLayout>
