@@ -1,4 +1,3 @@
-/* import * as React from 'react'; */
 import React from 'react';
 import ReactGridLayout from 'react-grid-layout';
 import { Layout as GridLayout } from 'react-grid-layout';
@@ -9,6 +8,7 @@ import ThreeViewer from './three_viewer';
 interface Props {}
 interface State {
   elementProps: { [key: string]: ElementProps };
+  size: number;
 }
 
 interface ElementProps {
@@ -22,42 +22,60 @@ const defaultHeight = 600;
 // TODOs (priority goes from high to low)
 // TODO: resizeHandles: https://github.com/STRML/react-grid-layout/issues/1317
 class Layout extends React.Component<Props, State> {
+  handleClick = (button: '+' | '-') => {
+    this.setState({
+      elementProps: this.state.elementProps,
+      size: this.state.size + (button === '+' ? 1 : -1),
+    });
+  };
+
   // layout is an array of objects, see the demo for more complete usage
-  layout: GridLayout[] = [
-    {
-      i: 'a',
-      x: 0,
-      y: 0,
-      w: 1,
-      h: 1,
-    },
-    {
-      i: 'plotter1',
-      x: 0,
-      y: 0,
-      w: 7,
-      h: 10,
-      isResizable: true,
-      resizeHandles: ['se'],
-      static: true,
-    },
-    {
-      i: 'three_js_viewer',
-      x: 7,
-      y: 0,
-      w: 7,
-      h: 10,
-      isResizable: true,
-      resizeHandles: ['se'],
-      static: true,
-    },
-  ];
+  getLayout = (): GridLayout[] => {
+    return [
+      {
+        i: 'inc_button',
+        x: 0,
+        y: 0,
+        w: 1,
+        h: 1,
+        static: true,
+      },
+      {
+        i: 'dec_button',
+        x: 1,
+        y: 0,
+        w: 1,
+        h: 1,
+        static: true,
+      },
+      {
+        i: 'plotter1',
+        x: 0,
+        y: 1,
+        w: this.state.size,
+        h: this.state.size,
+        isResizable: true,
+        resizeHandles: ['se'],
+        static: true,
+      },
+      {
+        i: 'three_js_viewer',
+        x: 7,
+        y: 1,
+        w: this.state.size,
+        h: this.state.size,
+        isResizable: true,
+        resizeHandles: ['se'],
+        static: true,
+      },
+    ];
+  };
 
   elements: { [key: string]: HTMLDivElement | null };
 
   constructor(props: Props) {
     super(props);
-    this.state = { elementProps: {} };
+    this.state = { elementProps: {}, size: 7 };
     this.elements = {};
   }
 
@@ -82,6 +100,7 @@ class Layout extends React.Component<Props, State> {
     key: string,
     elementFun: (props: SizeMeProps) => JSX.Element
   ) {
+    /* Check this issue: https://github.com/ctrlplusb/react-sizeme/issues/120#issuecomment-446421690 */
     return (
       <div
         key={key}
@@ -89,7 +108,24 @@ class Layout extends React.Component<Props, State> {
           this.elements[key] = divElement;
         }}
       >
-        <SizeMe>{({ size }) => <div>{elementFun({ size })}</div>}</SizeMe>
+        <SizeMe monitorHeight>
+          {({ size }) => (
+            <div style={{ position: 'relative', height: '100%' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: (size.height
+                    ? size.height
+                    : defaultHeight
+                  ).toString(),
+                }}
+              >
+                {elementFun({ size })}
+              </div>
+            </div>
+          )}
+        </SizeMe>
       </div>
     );
   }
@@ -126,12 +162,25 @@ class Layout extends React.Component<Props, State> {
       <React.Fragment>
         <ReactGridLayout
           className="layout"
-          layout={this.layout}
+          layout={this.getLayout()}
           cols={14}
-          rowHeight={40}
+          rowHeight={60}
           width={1400}
           resizeHandles={['se']}
         >
+          <button
+            key="inc_button"
+            onClick={(evt: any) => this.handleClick('+')}
+          >
+            +
+          </button>
+          <button
+            key="dec_button"
+            onClick={(evt: any) => this.handleClick('-')}
+          >
+            -
+          </button>
+
           {this.createAutofitElement('plotter1', ({ size }) => {
             return (
               <Plotter
@@ -147,9 +196,6 @@ class Layout extends React.Component<Props, State> {
             });
             return <ThreeViewer {...viewerSize} />;
           })}
-
-          <div key="a">a</div>
-          <div key="b">b</div>
         </ReactGridLayout>
       </React.Fragment>
     );
