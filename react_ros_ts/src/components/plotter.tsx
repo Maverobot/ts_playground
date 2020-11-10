@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PlotlyChart from 'react-plotlyjs-ts';
 import * as ROSLIB from 'roslib';
+import config from '../config.json';
 
 interface Props {
   width: number;
@@ -26,7 +27,7 @@ class Plotter extends React.Component<Props, State> {
     this.lastUpdateDate = new Date();
 
     this.ros = new ROSLIB.Ros({
-      url: 'ws://0.0.0.0:9090',
+      url: config.ros_url,
     });
     this.ros.on('connection', function () {
       console.debug('Connected to websocket server.');
