@@ -23,34 +23,10 @@ const defaultWidth = 800;
 const defaultHeight = 600;
 
 // TODOs (priority goes from high to low)
-// TODO: resizeHandles: https://github.com/STRML/react-grid-layout/issues/1317
 class Layout extends React.Component<Props, State> {
-  handleClick = (button: '+' | '-') => {
-    this.setState({
-      elementProps: this.state.elementProps,
-      size: this.state.size + (button === '+' ? 1 : -1),
-    });
-  };
-
   // layout is an array of objects, see the demo for more complete usage
   getLayout = (): GridLayout[] => {
     return [
-      {
-        i: 'inc_button',
-        x: 0,
-        y: 0,
-        w: 1,
-        h: 1,
-        static: true,
-      },
-      {
-        i: 'dec_button',
-        x: 1,
-        y: 0,
-        w: 1,
-        h: 1,
-        static: true,
-      },
       {
         i: 'plotter1',
         x: 0,
@@ -168,22 +144,9 @@ class Layout extends React.Component<Props, State> {
           layout={this.getLayout()}
           cols={14}
           rowHeight={60}
-          width={1400}
+          width={1200}
           resizeHandles={['se']}
         >
-          <button
-            key="inc_button"
-            onClick={(evt: any) => this.handleClick('+')}
-          >
-            +
-          </button>
-          <button
-            key="dec_button"
-            onClick={(evt: any) => this.handleClick('-')}
-          >
-            -
-          </button>
-
           {this.createAutofitElement('plotter1', ({ size }) => {
             return (
               <Plotter
