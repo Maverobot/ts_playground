@@ -11,7 +11,7 @@ import 'react-resizable/css/styles.css';
 interface Props {}
 interface State {
   elementProps: { [key: string]: ElementProps };
-  size: number;
+  layout: GridLayout[];
 }
 
 interface ElementProps {
@@ -21,31 +21,32 @@ interface ElementProps {
 
 const defaultWidth = 800;
 const defaultHeight = 600;
+const initialGridSize = 7;
 
 // TODOs (priority goes from high to low)
 class Layout extends React.Component<Props, State> {
   // layout is an array of objects, see the demo for more complete usage
-  getLayout = (): GridLayout[] => {
+  getInitialLayout = (): GridLayout[] => {
     return [
       {
         i: 'plotter1',
         x: 0,
         y: 1,
-        w: this.state.size,
-        h: this.state.size,
+        w: initialGridSize,
+        h: initialGridSize,
         isResizable: true,
         resizeHandles: ['se'],
-        static: true,
+        static: false,
       },
       {
         i: 'three_js_viewer',
         x: 7,
         y: 1,
-        w: this.state.size,
-        h: this.state.size,
+        w: initialGridSize,
+        h: initialGridSize,
         isResizable: true,
         resizeHandles: ['se'],
-        static: true,
+        static: false,
       },
     ];
   };
@@ -54,9 +55,14 @@ class Layout extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { elementProps: {}, size: 7 };
+    this.state = { elementProps: {}, layout: this.getInitialLayout() };
     this.elements = {};
   }
+
+  onLayoutChange = (layout: GridLayout[]) => {
+    console.log(layout);
+    this.setState({ elementProps: this.state.elementProps, layout: layout });
+  };
 
   componentDidMount() {
     let changed = false;
@@ -141,7 +147,8 @@ class Layout extends React.Component<Props, State> {
       <React.Fragment>
         <ReactGridLayout
           className="layout"
-          layout={this.getLayout()}
+          layout={this.state.layout}
+          onLayoutChange={this.onLayoutChange}
           cols={14}
           rowHeight={60}
           width={1200}
