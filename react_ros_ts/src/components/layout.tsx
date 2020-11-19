@@ -5,6 +5,9 @@ import Plotter from './plotter';
 import { SizeMe, SizeMeProps } from 'react-sizeme';
 import ThreeViewer from './three_viewer';
 
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+
 interface Props {}
 interface State {
   elementProps: { [key: string]: ElementProps };
